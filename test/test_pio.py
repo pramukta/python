@@ -33,7 +33,6 @@ dummy_pipeline = """{
 }"""
 
 
-
 class TestPIOBasics(unittest.TestCase):
     def test_pipeline_construction(self):
         pipeline = (pio.readers.ply(filename="dummyinput.ply") +
@@ -55,3 +54,15 @@ class TestPIOBasics(unittest.TestCase):
         self.assertNotIn("type", auto_writer.spec)
         self.assertEqual(auto_reader.prefix, "readers")
         self.assertEqual(auto_writer.prefix, "writers")
+
+    def test_pipeline_loop_accumulation(self):
+        for _ in range(10):
+          pipeline = pio.readers.ept(filename="nothing.ept") + pio.writers.las(filename="whatever.las")
+
+        # ensure that this didn't accumulate a bunch fo extra stages
+        self.assertIn("pipeline", pipeline.spec)
+        self.assertEqual(len(pipeline.spec["pipeline"]), 2)
+
+
+if __name__ == '__main__':
+    unittest.main()
